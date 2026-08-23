@@ -105,8 +105,10 @@ export const generateOAuthURL = async (prompt?: string): Promise<string> => {
 
         const config: AuthConfig = {
             clientId,
-            redirectUri: window.location.origin,
-            scopes: 'trade',
+            // Deriv requires this exact callback URI to be registered in the OAuth app.
+            // Keep the callback path stable across preview and production origins.
+            redirectUri: `${window.location.origin}/oauth/callback`,
+            scopes: 'trade account_manage',
         };
 
         // Static referral link (fallback for direct visits without affiliate click)
