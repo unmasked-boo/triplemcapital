@@ -185,7 +185,7 @@ const AppContent = observer(() => {
         <React.Fragment>
             {PreviewBranding && (
                 <Suspense fallback={null}>
-                    <PreviewBranding />
+                    <PreviewBranding uiReady={!is_loading} />
                 </Suspense>
             )}
             {is_loading ? (

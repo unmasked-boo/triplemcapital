@@ -28,7 +28,7 @@ export const expectInitArg = args => {
     const [token, options] = args;
 
     if (!token) {
-        throw createError('LoginError', localize('Please login'));
+        throw createError('LoginError', localize('Please log in'));
     }
 
     expectOptions(options);

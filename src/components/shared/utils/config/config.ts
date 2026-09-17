@@ -7,6 +7,7 @@ import {
     resolveReferralViaProxy,
 } from '@/external/deriv-core';
 import type { AuthConfig } from '@/external/deriv-core';
+import { getInitialLanguage } from '@deriv-com/translations';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 import brandConfig from '../../../../../brand.config.json';
 
@@ -107,6 +108,13 @@ export const generateOAuthURL = async (prompt?: string): Promise<string> => {
             clientId,
             redirectUri: window.location.origin,
             scopes: 'trade',
+            // Without this a Bot deployed in ES/FR/PT sends its clients to an
+            // English login (#804). `getInitialLanguage()` is the same reader
+            // `url-redirect-utils` and `transfer-utils` use for their own `lang`
+            // params, and resolves exactly what the app booted in: the boot
+            // clamp in `app/i18n.ts` has already dropped any code this build
+            // cannot render, and a switch from the footer reloads the page.
+            lang: getInitialLanguage(),
         };
 
         // Static referral link (fallback for direct visits without affiliate click)

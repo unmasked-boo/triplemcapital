@@ -1,4 +1,4 @@
-<xml xmlns="http://www.w3.org/1999/xhtml" collection="false" is_dbot="true">
+﻿<xml xmlns="http://www.w3.org/1999/xhtml" collection="false" is_dbot="true">
   <variables></variables>
   <block type="trade_definition" x="0" y="0">
     <statement name="TRADE_OPTIONS">

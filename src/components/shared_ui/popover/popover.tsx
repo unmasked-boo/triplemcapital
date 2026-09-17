@@ -38,7 +38,7 @@ const Popover = ({
     data_testid,
     arrow_styles,
 }: React.PropsWithChildren<TPopoverProps>) => {
-    const ref = React.useRef<HTMLDivElement | undefined>();
+    const ref = React.useRef<HTMLDivElement | undefined>(undefined);
     const [popover_ref, setPopoverRef] = React.useState<HTMLDivElement | undefined>(undefined);
     const [is_bubble_visible, setIsBubbleVisible] = React.useState(false);
     const { isDesktop } = useDevice();

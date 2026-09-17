@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 /**
  * A hook that leverages React Router v6 to sync URL params with the React component lifecycle.

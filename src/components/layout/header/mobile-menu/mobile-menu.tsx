@@ -8,7 +8,9 @@ import useModalManager from '@/hooks/useModalManager';
 import { useStore } from '@/hooks/useStore';
 // [/AI]
 import { getActiveTabUrl } from '@/utils/getActiveTabUrl';
-import { FILTERED_LANGUAGES } from '@/utils/languages';
+// [AI]
+import { OFFERED_LANGUAGES } from '@/utils/offered-languages';
+// [/AI]
 import { useTranslations } from '@deriv-com/translations';
 import { Drawer, MobileLanguagesDrawer, useDevice } from '@deriv-com/ui';
 import NetworkStatus from './../../footer/NetworkStatus';
@@ -89,7 +91,9 @@ const MobileMenu = ({ onLogout }: TMobileMenuProps) => {
 
                             <MobileLanguagesDrawer
                                 isOpen
-                                languages={FILTERED_LANGUAGES}
+                                /* [AI] */
+                                languages={OFFERED_LANGUAGES}
+                                /* [/AI] */
                                 onClose={hideModal}
                                 onLanguageSwitch={code => {
                                     try {

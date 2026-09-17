@@ -1,6 +1,10 @@
-import React from 'react';
+import { reloadPage } from '@/utils/navigation-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import UnhandledErrorModal from '../unhandled-error-modal';
+
+jest.mock('@/utils/navigation-utils', () => ({
+    reloadPage: jest.fn(),
+}));
 
 describe('<UnhandledErrorModal />', () => {
     let modal_root_el: HTMLDivElement;
@@ -16,7 +20,6 @@ describe('<UnhandledErrorModal />', () => {
     });
 
     it('renders the component with proper messages', () => {
-        jest.spyOn(React, 'useState').mockImplementationOnce(() => React.useState<boolean>(true));
         render(<UnhandledErrorModal />);
         expect(screen.getByText(/Sorry for the interruption/i)).toBeInTheDocument();
         expect(screen.getByText(/Our servers hit a bump. Let’s refresh to move on./i)).toBeInTheDocument();
@@ -24,14 +27,8 @@ describe('<UnhandledErrorModal />', () => {
     });
 
     it('should call reload function when refresh button is clicked', () => {
-        jest.spyOn(React, 'useState').mockImplementationOnce(() => React.useState<boolean>(true));
-        const reloadFn = jest.fn();
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: reloadFn },
-        });
         render(<UnhandledErrorModal />);
         fireEvent.click(screen.getByText('Refresh'));
-        expect(reloadFn).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 });

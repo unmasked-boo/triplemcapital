@@ -52,6 +52,17 @@ GD_API_KEY=
 > These variables are injected at **build time** via Rsbuild's `source.define`
 > (see `rsbuild.config.ts`), so re-build after changing them.
 
+## Branding (`brand.config.json`)
+
+The App Builder also writes branding into `brand.config.json`. Relevant `platform` keys:
+
+| Key | Description |
+|---|---|
+| `platform.name` | In-app display name (header, tab title, favicon). Set in App Builder Customise. Overridden by `NEXT_PUBLIC_DERIV_APP_NAME` when that env var is set. |
+| `platform.show_name` | `true` (default) shows the name next to the logo on desktop; `false` hides it |
+
+Tab title and favicon use `NEXT_PUBLIC_DERIV_APP_NAME` when set, otherwise `platform.name` (with a generic fallback), and are not blanked when `show_name` is false. OAuth/consent registration name is separate and is not written into these fields by App Builder.
+
 ## Step 3: Local Development
 
 ```bash

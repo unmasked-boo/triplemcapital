@@ -1,4 +1,4 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import { mockStore, StoreProvider } from '@/hooks/useStore';
 import { mock_ws } from '@/utils/mock';
 import { useDevice } from '@deriv-com/ui';

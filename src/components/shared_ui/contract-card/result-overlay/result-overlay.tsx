@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { CSSTransition } from 'react-transition-group';
 import { StandaloneFlagCheckeredFillIcon } from '@deriv/quill-icons';
 import Money from '../../money';
@@ -54,6 +54,7 @@ const ResultOverlay = ({
     result,
 }: TResultOverlayProps) => {
     const is_contract_won = result === 'won';
+    const nodeRef = React.useRef(null);
 
     return (
         <React.Fragment>
@@ -66,8 +67,10 @@ const ResultOverlay = ({
                     exit: 'dc-contract-card__result--exit',
                 }}
                 unmountOnExit
+                nodeRef={nodeRef}
             >
                 <div
+                    ref={nodeRef}
                     id={`dc_contract_card_${contract_id}_result`}
                     className={classNames('dc-contract-card__result', {
                         'dc-result__positions-overlay': is_positions,

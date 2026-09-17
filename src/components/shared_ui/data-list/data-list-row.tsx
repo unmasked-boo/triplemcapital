@@ -1,7 +1,7 @@
 // @ts-nocheck — vendored bot code with known upstream type gaps; see AGENTS.md
 import React from 'react';
 import classNames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { clickAndKeyEventHandler, useIsMounted } from '@/components/shared';
 import { useDebounce } from '@/hooks/useDebounce';
 // Fixed import path - TSource is now defined in common.types

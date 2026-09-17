@@ -1,5 +1,5 @@
 import path from 'path';
-import { defineConfig, loadEnv } from '@rsbuild/core';
+import { defineConfig, loadEnv, rspack } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
 
@@ -97,16 +97,22 @@ export default defineConfig({
   },
   dev: { hmr: true },
   tools: {
-    rspack: {
-      module: {
-        rules: [
-          {
-            test: /\.xml$/,
-            exclude: /node_modules/,
-            use: 'raw-loader',
-          },
-        ],
-      },
+    rspack(config, { appendPlugins, appendRules }) {
+      // @deriv-com/quill-ui@1.x vendors a React 18 jsx-runtime that reads
+      // React.__SECRET_INTERNALS_…ReactCurrentOwner (removed in React 19). Remap
+      // it to React's own jsx-runtime so ThemeProvider / Chip / Link etc. work.
+      appendPlugins(
+        new rspack.NormalModuleReplacementPlugin(
+          /@deriv-com[\\/]quill-ui[\\/]dist[\\/]jsx-runtime[^/]*\.js$/,
+          path.resolve(__dirname, './src/utils/quill-ui-jsx-runtime-shim.js')
+        )
+      );
+      appendRules({
+        test: /\.xml$/,
+        exclude: /node_modules/,
+        use: 'raw-loader',
+      });
+      return config;
     },
   },
 });

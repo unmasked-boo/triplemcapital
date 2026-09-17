@@ -29,11 +29,11 @@ const PageOverlay = ({
     has_return_icon,
     onReturn,
 }: React.PropsWithChildren<TPageOverlay>) => {
-    const page_overlay_ref = React.useRef<HTMLDivElement>(null);
+    const nodeRef = React.useRef<HTMLDivElement>(null);
 
     const el_page_overlay = (
         <div
-            ref={page_overlay_ref}
+            ref={nodeRef}
             id={id}
             className={classNames('dc-page-overlay', {
                 'dc-page-overlay-portal': !!portal_id,
@@ -83,6 +83,7 @@ const PageOverlay = ({
                     exit: 'dc-page-overlay--exit',
                 }}
                 unmountOnExit
+                nodeRef={nodeRef}
             >
                 {el_page_overlay}
             </CSSTransition>,

@@ -1,7 +1,7 @@
 // @ts-nocheck — vendored bot code with known upstream type gaps; see AGENTS.md
 import React from 'react';
 import classNames from 'classnames';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { useIsMounted } from 'usehooks-ts';
 import { useDebounce } from '@/hooks/useDebounce';
 import { clickAndKeyEventHandler } from '../shared';

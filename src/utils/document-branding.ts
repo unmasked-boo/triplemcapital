@@ -1,5 +1,5 @@
 import { applyBrandFont, applyPrimaryColor } from './apply-branding';
-import { getAppName, LOGO_CANDIDATES } from './branding';
+import { getAppName, getLogoCandidates } from './branding';
 import { isPreviewMode } from './is-preview-mode';
 import brandConfig from '../../brand.config.json';
 
@@ -56,10 +56,12 @@ export function buildLetterFaviconUri(appName: string = getAppName()): string {
 }
 
 /**
- * Uses the partner logo (public/logo.<png|jpg|jpeg|webp>, written by the BFF at deploy
- * time) as the favicon when present. Loads each candidate first so the favicon is only
- * swapped if a file actually exists; if none load, falls back to a letter-badge SVG built
- * from the app name (matching the header LogoMark) rather than leaving the deriv default.
+ * Uses the partner logo (public/logo.<ext>, written by the BFF at deploy time) as the
+ * favicon when present. The candidates come from brand.config.json platform.logo_path
+ * (see getLogoCandidates) — the exact file when a logo ships, none when it doesn't.
+ * Each candidate is loaded first so the favicon is only swapped if the file actually
+ * exists; if none load, falls back to a letter-badge SVG built from the app name
+ * (matching the header LogoMark) rather than leaving the deriv default.
  */
 export function applyFaviconFromLogo(): void {
     // The static preview build ships no public/logo.*, so there's nothing to probe — set
@@ -70,12 +72,13 @@ export function applyFaviconFromLogo(): void {
         return;
     }
 
+    const candidates = getLogoCandidates();
     const tryCandidate = (index: number): void => {
-        if (index >= LOGO_CANDIDATES.length) {
+        if (index >= candidates.length) {
             setFaviconHref(buildLetterFaviconUri(), 'image/svg+xml');
             return;
         }
-        const src = LOGO_CANDIDATES[index];
+        const src = candidates[index];
         const img = new Image();
         img.onload = () => setFaviconHref(src);
         img.onerror = () => tryCandidate(index + 1);

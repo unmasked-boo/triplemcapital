@@ -1,13 +1,28 @@
 import Cookies from 'js-cookie';
 import { BOT_VERSION_CONFIG } from '@/constants/bot-version';
+// Relative, not `@/app/...`: jest's moduleNameMapper aliases one directory at a
+// time and has no `@/app/` entry.
+import { LANGUAGE_STORAGE_KEY } from '../app/seed-translations';
 
 /**
- * Clears all localStorage data except for the bot_version
+ * Clears all localStorage data except for the bot_version and the language.
+ *
+ * The language has to survive for the same reason the version does: this runs on
+ * every first visit (no `bot_version` yet), and `app/i18n.ts` has *already* seeded
+ * the deploy's configured language by then. `main.tsx` calls this before its own
+ * body does anything else, but ES imports are evaluated before the importing
+ * module's body — and `main.tsx` imports `AuthWrapper` -> `App` -> `./i18n` on its
+ * first line — so the seed is unavoidably earlier. Clearing it left i18next holding
+ * the right language in memory (the UI was French) while storage was empty, so
+ * every later reader of `getInitialLanguage()` — the OAuth `lang`, the redirect and
+ * transfer URLs, static links — fell back to EN. That is why a first login landed
+ * on an English screen and only the second was French (#804).
  */
 const clearLocalStorage = (): void => {
     try {
         // Get the current bot_version before clearing
         const currentBotVersion = localStorage.getItem(BOT_VERSION_CONFIG.STORAGE_KEY);
+        const currentLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
         // Clear all localStorage
         localStorage.clear();
@@ -15,6 +30,11 @@ const clearLocalStorage = (): void => {
         // Restore the bot_version if it existed
         if (currentBotVersion) {
             localStorage.setItem(BOT_VERSION_CONFIG.STORAGE_KEY, currentBotVersion);
+        }
+
+        // Restore the language the app is already rendering in.
+        if (currentLanguage) {
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
         }
     } catch (error) {
         console.error('Error clearing localStorage:', error);

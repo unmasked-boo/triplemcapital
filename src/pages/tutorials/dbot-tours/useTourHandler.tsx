@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { CallBackProps } from 'react-joyride';
+import { ACTIONS, STATUS, type EventData } from 'react-joyride';
 
 export const useTourHandler = () => {
     const [is_finished, setIsFinished] = useState(false);
     const [is_close_tour, setIsCloseTour] = useState(false);
 
-    const handleJoyrideCallback = (data: CallBackProps) => {
+    const handleJoyrideCallback = (data: EventData) => {
         const { action, status } = data;
-        if (status === 'finished') {
+        if (status === STATUS.FINISHED) {
             setIsFinished(true);
-        } else if (action === 'close' || action === 'skip') {
+        } else if (action === ACTIONS.CLOSE || action === ACTIONS.SKIP) {
             setIsCloseTour(true);
         }
     };

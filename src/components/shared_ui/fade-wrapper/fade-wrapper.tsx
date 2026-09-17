@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { type ComponentType, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 
 type TFadeWrapperProps = {
@@ -8,6 +8,9 @@ type TFadeWrapperProps = {
     type?: 'top' | 'bottom';
     className?: string;
 };
+
+// framer-motion@6 typings predate React 19's children/DOM prop changes.
+const MotionDiv = motion.div as ComponentType<Record<string, unknown>>;
 
 const FadeInFromTopDiv = {
     initial: {
@@ -52,7 +55,7 @@ const FadeWrapper = ({ children, className, is_visible, keyname, type }: TFadeWr
         return (
             <>
                 {is_visible && (
-                    <motion.div
+                    <MotionDiv
                         animate={FadeInFromTopDiv.animate}
                         initial={FadeInFromTopDiv.initial}
                         transition={FadeInFromTopDiv.transition}
@@ -60,7 +63,7 @@ const FadeWrapper = ({ children, className, is_visible, keyname, type }: TFadeWr
                         key={keyname}
                     >
                         {children}
-                    </motion.div>
+                    </MotionDiv>
                 )}
             </>
         );
@@ -69,7 +72,7 @@ const FadeWrapper = ({ children, className, is_visible, keyname, type }: TFadeWr
         return (
             <>
                 {is_visible && (
-                    <motion.div
+                    <MotionDiv
                         animate={FadeInFromBottomDiv.animate}
                         initial={FadeInFromBottomDiv.initial}
                         transition={FadeInFromBottomDiv.transition}
@@ -77,7 +80,7 @@ const FadeWrapper = ({ children, className, is_visible, keyname, type }: TFadeWr
                         key={keyname}
                     >
                         {children}
-                    </motion.div>
+                    </MotionDiv>
                 )}
             </>
         );
@@ -85,7 +88,7 @@ const FadeWrapper = ({ children, className, is_visible, keyname, type }: TFadeWr
     return (
         <>
             {is_visible && (
-                <motion.div
+                <MotionDiv
                     animate={FadeInOnlyDiv.animate}
                     initial={FadeInOnlyDiv.initial}
                     transition={FadeInOnlyDiv.transition}
@@ -93,7 +96,7 @@ const FadeWrapper = ({ children, className, is_visible, keyname, type }: TFadeWr
                     key={keyname}
                 >
                     {children}
-                </motion.div>
+                </MotionDiv>
             )}
         </>
     );

@@ -1,6 +1,11 @@
 // Removed unused React import - React 17+ JSX transform doesn't require it
+import { reloadPage } from '@/utils/navigation-utils';
 import { render, screen } from '@testing-library/react';
 import ErrorModalContent from '../error-modal-content';
+
+jest.mock('@/utils/navigation-utils', () => ({
+    reloadPage: jest.fn(),
+}));
 
 describe('<ErrorModalContent />', () => {
     let modal_root_el: HTMLDivElement;
@@ -40,12 +45,7 @@ describe('<ErrorModalContent />', () => {
     it('should reload the page when the Refresh button is clicked', () => {
         render(<ErrorModalContent error_message={error_message} />);
         const refresh_button = screen.getByRole('button', { name: /Refresh/i });
-        const reload_mock = jest.fn();
-        Object.defineProperty(window, 'location', {
-            value: { reload: reload_mock },
-            writable: true,
-        });
         refresh_button.click();
-        expect(reload_mock).toHaveBeenCalled();
+        expect(reloadPage).toHaveBeenCalled();
     });
 });

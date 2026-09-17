@@ -40,5 +40,16 @@ module.exports = {
         '@babel/plugin-proposal-export-namespace-from',
         '@babel/plugin-syntax-dynamic-import',
         '@babel/plugin-proposal-optional-chaining',
+        // react-router@8 ships ESM that uses `import.meta.hot`; Jest/CJS cannot parse it.
+        function babelPluginStripImportMeta() {
+            return {
+                name: 'strip-import-meta',
+                visitor: {
+                    MetaProperty(path) {
+                        path.replaceWithSourceString('({ url: "", hot: undefined })');
+                    },
+                },
+            };
+        },
     ],
 };

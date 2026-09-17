@@ -1,5 +1,6 @@
 import { observer as globalObserver } from '@/external/bot-skeleton/utils/observer';
 import { ErrorLogger } from '@/utils/error-logger';
+import { reloadPage, replaceUrl } from '@/utils/navigation-utils';
 import { renderHook } from '@testing-library/react';
 import { useInvalidTokenHandler } from '../useInvalidTokenHandler';
 
@@ -17,6 +18,15 @@ jest.mock('@/utils/error-logger', () => ({
     },
 }));
 
+jest.mock('@/utils/navigation-utils', () => ({
+    reloadPage: jest.fn(),
+    replaceUrl: jest.fn(),
+}));
+
+jest.mock('@/external/deriv-core', () => ({
+    clearAuthInfo: jest.fn(),
+}));
+
 jest.mock('@/components/shared', () => ({
     generateOAuthURL: jest.fn(),
 }));
@@ -26,9 +36,8 @@ import { generateOAuthURL } from '@/components/shared';
 
 describe('useInvalidTokenHandler', () => {
     let mockGenerateOAuthURL: jest.Mock;
-    let mockWindowLocationReplace: jest.Mock;
-    let mockWindowLocationReload: jest.Mock;
-    let originalLocation: Location;
+    let mockReplaceUrl: jest.Mock;
+    let mockReloadPage: jest.Mock;
 
     beforeEach(() => {
         // Clear all mocks before each test
@@ -36,19 +45,8 @@ describe('useInvalidTokenHandler', () => {
 
         // Setup mock functions
         mockGenerateOAuthURL = generateOAuthURL as jest.Mock;
-        mockWindowLocationReplace = jest.fn();
-        mockWindowLocationReload = jest.fn();
-
-        // Save original location
-        originalLocation = window.location;
-
-        // Mock window.location
-        delete (window as any).location;
-        window.location = {
-            ...originalLocation,
-            replace: mockWindowLocationReplace,
-            reload: mockWindowLocationReload,
-        } as any;
+        mockReplaceUrl = replaceUrl as jest.Mock;
+        mockReloadPage = reloadPage as jest.Mock;
 
         // Mock storage
         Storage.prototype.removeItem = jest.fn();
@@ -56,9 +54,6 @@ describe('useInvalidTokenHandler', () => {
     });
 
     afterEach(() => {
-        // Restore original location (cast to match the mock assignment above; window.location
-        // is typed `string & Location`).
-        window.location = originalLocation as any;
         jest.restoreAllMocks();
     });
 
@@ -106,7 +101,6 @@ describe('useInvalidTokenHandler', () => {
             // Trigger the handler
             await handler();
 
-            expect(sessionStorage.removeItem).toHaveBeenCalledWith('auth_info');
             expect(sessionStorage.clear).toHaveBeenCalled();
         });
 
@@ -142,10 +136,10 @@ describe('useInvalidTokenHandler', () => {
             await handler();
 
             expect(mockGenerateOAuthURL).toHaveBeenCalled();
-            expect(mockWindowLocationReplace).toHaveBeenCalledWith(mockOAuthURL);
+            expect(mockReplaceUrl).toHaveBeenCalledWith(mockOAuthURL);
         });
 
-        it('should use window.location.replace instead of reload', async () => {
+        it('should use replaceUrl instead of reload', async () => {
             const mockOAuthURL = 'https://oauth.example.com/authorize';
             mockGenerateOAuthURL.mockResolvedValue(mockOAuthURL);
 
@@ -158,8 +152,8 @@ describe('useInvalidTokenHandler', () => {
             // Trigger the handler
             await handler();
 
-            expect(mockWindowLocationReplace).toHaveBeenCalledWith(mockOAuthURL);
-            expect(mockWindowLocationReload).not.toHaveBeenCalled();
+            expect(mockReplaceUrl).toHaveBeenCalledWith(mockOAuthURL);
+            expect(mockReloadPage).not.toHaveBeenCalled();
         });
     });
 
@@ -180,7 +174,7 @@ describe('useInvalidTokenHandler', () => {
                 'InvalidToken',
                 'Failed to generate OAuth URL, falling back to reload'
             );
-            expect(mockWindowLocationReload).toHaveBeenCalled();
+            expect(mockReloadPage).toHaveBeenCalled();
         });
 
         it('should reload page if OAuth URL generation returns undefined', async () => {
@@ -199,7 +193,7 @@ describe('useInvalidTokenHandler', () => {
                 'InvalidToken',
                 'Failed to generate OAuth URL, falling back to reload'
             );
-            expect(mockWindowLocationReload).toHaveBeenCalled();
+            expect(mockReloadPage).toHaveBeenCalled();
         });
 
         it('should reload page if OAuth URL generation returns empty string', async () => {
@@ -218,7 +212,7 @@ describe('useInvalidTokenHandler', () => {
                 'InvalidToken',
                 'Failed to generate OAuth URL, falling back to reload'
             );
-            expect(mockWindowLocationReload).toHaveBeenCalled();
+            expect(mockReloadPage).toHaveBeenCalled();
         });
 
         it('should reload page if OAuth URL generation throws error', async () => {
@@ -235,7 +229,7 @@ describe('useInvalidTokenHandler', () => {
             await handler();
 
             expect(ErrorLogger.error).toHaveBeenCalledWith('InvalidToken', 'Error handling invalid token', mockError);
-            expect(mockWindowLocationReload).toHaveBeenCalled();
+            expect(mockReloadPage).toHaveBeenCalled();
         });
 
         it('should reload page if storage clearing throws error', async () => {
@@ -258,7 +252,7 @@ describe('useInvalidTokenHandler', () => {
                 'Error handling invalid token',
                 storageError
             );
-            expect(mockWindowLocationReload).toHaveBeenCalled();
+            expect(mockReloadPage).toHaveBeenCalled();
         });
     });
 
@@ -278,7 +272,7 @@ describe('useInvalidTokenHandler', () => {
 
             // Verify storage was cleared BEFORE redirect
             const removeItemCalls = (localStorage.removeItem as jest.Mock).mock.invocationCallOrder;
-            const replaceCalls = mockWindowLocationReplace.mock.invocationCallOrder;
+            const replaceCalls = mockReplaceUrl.mock.invocationCallOrder;
 
             // All removeItem calls should happen before replace
             removeItemCalls.forEach((removeOrder: number) => {
@@ -358,7 +352,7 @@ describe('useInvalidTokenHandler', () => {
             await handler();
 
             expect(mockGenerateOAuthURL).toHaveBeenCalledTimes(3);
-            expect(mockWindowLocationReplace).toHaveBeenCalledTimes(3);
+            expect(mockReplaceUrl).toHaveBeenCalledTimes(3);
         });
     });
 

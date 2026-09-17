@@ -1,4 +1,5 @@
 import React from 'react';
+import { reloadPage } from '@/utils/navigation-utils';
 import { DerivLightUserErrorIcon } from '@deriv/quill-icons/Illustration';
 import { getDefaultError } from '../shared/utils/constants';
 import Button from '../shared_ui/button';
@@ -33,7 +34,7 @@ const ModalContent = () => (
         >
             {getDefaultError().description}
         </Text>
-        <Button onClick={() => location.reload()} has_effect primary large text={getDefaultError().cta_label} />
+        <Button onClick={reloadPage} has_effect primary large text={getDefaultError().cta_label} />
     </div>
 );
 

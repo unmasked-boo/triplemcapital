@@ -19,4 +19,9 @@ const getAllowedLanguages = jest.fn(() => ({ EN: 'English', VI: 'Tiếng Việt'
 
 const initializeI18n = jest.fn(() => {});
 
-export { getAllowedLanguages, initializeI18n, Localize, localize, useTranslations };
+// Read by the modules that append `lang` to an outbound Deriv URL
+// (config/config.ts, url-redirect-utils, transfer-utils). Present here so a
+// suite that reaches one transitively does not have to mock the package itself.
+const getInitialLanguage = jest.fn(() => 'EN');
+
+export { getAllowedLanguages, getInitialLanguage, initializeI18n, Localize, localize, useTranslations };

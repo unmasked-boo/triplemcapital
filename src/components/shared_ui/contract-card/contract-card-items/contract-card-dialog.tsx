@@ -24,6 +24,8 @@ const ContractCardDialog = React.forwardRef(
 
         useOnClickOutside(ref as React.RefObject<HTMLDivElement>, toggleDialog, validateClickOutside);
 
+        const nodeRef = React.useRef(null);
+
         const dialog = (
             <CSSTransition
                 in={is_visible}
@@ -33,10 +35,18 @@ const ContractCardDialog = React.forwardRef(
                     exit: 'dc-contract-card-dialog--exit',
                 }}
                 timeout={150}
+                nodeRef={nodeRef}
                 unmountOnExit
             >
                 <div
-                    ref={ref}
+                    ref={node => {
+                        (nodeRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                        if (typeof ref === 'function') {
+                            ref(node);
+                        } else if (ref) {
+                            (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                        }
+                    }}
                     className='dc-contract-card-dialog'
                     style={{
                         top,

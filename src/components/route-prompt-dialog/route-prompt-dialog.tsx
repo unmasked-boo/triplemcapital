@@ -1,7 +1,7 @@
 // @ts-nocheck — vendored bot code with known upstream type gaps; see AGENTS.md
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { useBlocker } from 'react-router-dom';
+import { useBlocker } from 'react-router';
 import { useStore } from '@/hooks/useStore';
 import { Localize, localize } from '@deriv-com/translations';
 import Dialog from '../shared_ui/dialog';

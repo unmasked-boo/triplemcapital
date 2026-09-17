@@ -1,3 +1,4 @@
+import { reloadPage } from '@/utils/navigation-utils';
 import { DerivLightUserErrorIcon } from '@deriv/quill-icons/Illustration';
 import { Localize } from '@deriv-com/translations';
 import Button from '../shared_ui/button';
@@ -17,7 +18,7 @@ const ErrorModalContent = ({ error_message }: TErrorModalContent) => {
             <Text className='da-icon-with-message__text__desc' as='p' size='xs' lineHeight='xxs' align='center'>
                 {error_message}
             </Text>
-            <Button onClick={() => location.reload()} has_effect primary large>
+            <Button onClick={reloadPage} has_effect primary large>
                 <Localize i18n_default_text='Refresh' />
             </Button>
         </div>

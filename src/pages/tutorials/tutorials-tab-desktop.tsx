@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import Tabs from '@/components/shared_ui/tabs';
 import { useStore } from '@/hooks/useStore';
 import { LabelPairedSearchCaptionRegularIcon } from '@deriv/quill-icons/LabelPaired';

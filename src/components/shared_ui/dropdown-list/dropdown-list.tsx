@@ -168,6 +168,7 @@ const DropdownList = (props: TDropDownList) => {
 
     const is_object = !Array.isArray(list_items) && typeof list_items === 'object';
     const is_string_array = list_items?.length && typeof list_items[0] === 'string';
+    const nodeRef = React.useRef(null);
 
     const el_dropdown_list = (
         <CSSTransition
@@ -180,8 +181,18 @@ const DropdownList = (props: TDropDownList) => {
                 exit: 'dc-dropdown-list--exit',
             }}
             unmountOnExit
+            nodeRef={nodeRef}
         >
-            <div style={style} className='dc-dropdown-list' ref={list_wrapper_ref}>
+            <div
+                style={style}
+                className='dc-dropdown-list'
+                ref={node => {
+                    (nodeRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                    if (list_wrapper_ref) {
+                        (list_wrapper_ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                    }
+                }}
+            >
                 <ThemedScrollbars height={list_height || '220px'} refSetter={dropdown_ref} onScroll={onScrollStop}>
                     {is_object ? (
                         Object.keys(list_items).map((items, idx) => (

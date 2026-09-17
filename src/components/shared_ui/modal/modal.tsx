@@ -43,36 +43,40 @@ type TModalElement = {
     width?: string;
 };
 
-const ModalElement = ({
-    children,
-    className,
-    close_icon_color,
-    elements_to_ignore,
-    has_close_icon = true,
-    has_return_icon = false,
-    header,
-    header_background_color,
-    height,
-    id,
-    is_confirmation_modal,
-    is_open,
-    is_risk_warning_visible,
-    is_title_centered,
-    is_vertical_bottom,
-    is_vertical_centered,
-    is_vertical_top,
-    onMount,
-    onReturn,
-    onUnmount,
-    portalId = 'modal_root',
-    renderTitle,
-    should_close_on_click_outside,
-    should_header_stick_body = true,
-    small,
-    title,
-    toggleModal,
-    width,
-}: React.PropsWithChildren<TModalElement>) => {
+const ModalElement = React.forwardRef<HTMLDivElement, React.PropsWithChildren<TModalElement>>(
+    (
+        {
+            children,
+            className,
+            close_icon_color,
+            elements_to_ignore,
+            has_close_icon = true,
+            has_return_icon = false,
+            header,
+            header_background_color,
+            height,
+            id,
+            is_confirmation_modal,
+            is_open,
+            is_risk_warning_visible,
+            is_title_centered,
+            is_vertical_bottom,
+            is_vertical_centered,
+            is_vertical_top,
+            onMount,
+            onReturn,
+            onUnmount,
+            portalId = 'modal_root',
+            renderTitle,
+            should_close_on_click_outside,
+            should_header_stick_body = true,
+            small,
+            title,
+            toggleModal,
+            width,
+        },
+        ref
+    ) => {
     const el_ref = React.useRef(document.createElement('div'));
     const el_portal_node = portalId && document.getElementById(portalId);
     const modal_root_ref = React.useRef(el_portal_node || document.getElementById(portalId));
@@ -144,7 +148,16 @@ const ModalElement = ({
 
     return ReactDOM.createPortal(
         <div
-            ref={wrapper_ref}
+            ref={node => {
+                (wrapper_ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                if (ref) {
+                    if (typeof ref === 'function') {
+                        ref(node);
+                    } else {
+                        (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                    }
+                }
+            }}
             id={id}
             className={classNames('dc-modal__container', {
                 [`dc-modal__container_${className}`]: className,
@@ -230,7 +243,9 @@ const ModalElement = ({
         </div>,
         el_ref.current
     );
-};
+});
+
+ModalElement.displayName = 'ModalElement';
 
 type TModal = TModalElement & {
     exit_classname?: string;
@@ -272,7 +287,10 @@ const Modal = ({
     transition_timeout,
     toggleModal,
     width,
-}: React.PropsWithChildren<TModal>) => (
+}: React.PropsWithChildren<TModal>) => {
+    const nodeRef = React.useRef(null);
+
+    return (
     <CSSTransition
         appear
         in={is_open}
@@ -286,8 +304,10 @@ const Modal = ({
         unmountOnExit
         onEntered={onEntered}
         onExited={onExited}
+        nodeRef={nodeRef}
     >
         <ModalElement
+            ref={nodeRef}
             className={className}
             close_icon_color={close_icon_color}
             should_header_stick_body={should_header_stick_body}
@@ -319,7 +339,8 @@ const Modal = ({
             {children}
         </ModalElement>
     </CSSTransition>
-);
+    );
+};
 
 Modal.Body = Body;
 Modal.Footer = Footer;

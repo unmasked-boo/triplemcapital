@@ -25,7 +25,9 @@ async function buildPkceParams(config: AuthConfig): Promise<URLSearchParams> {
   storeCodeVerifier(codeVerifier);
 
   return new URLSearchParams({
-    scope: config.scopes ?? 'trade account_manage',
+    // 'trade' only: a request for a scope the app is not registered with is
+    // rejected outright (error=invalid_scope), so the fallback stays minimal.
+    scope: config.scopes ?? 'trade',
     response_type: 'code',
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
@@ -36,15 +38,12 @@ async function buildPkceParams(config: AuthConfig): Promise<URLSearchParams> {
 }
 
 /**
- * Build the OAuth 2.0 login authorization URL with PKCE parameters.
- * Includes optional partner attribution params (affiliate token, utm_*) when
- * present in config — so attribution carries through if the user clicks Login
- * then signs up from Deriv's home page.
- * Stores CSRF token and code verifier in sessionStorage.
+ * Append partner attribution + language params shared by login and sign-up.
+ * One helper rather than two copies so login can never drift from sign-up —
+ * `lang` was added to sign-up's twin in `packages/core` and missed here, which
+ * sent a Bot deployed in ES/FR/PT to an English login (#804).
  */
-export async function buildAuthorizationUrl(config: AuthConfig): Promise<string> {
-  const params = await buildPkceParams(config);
-
+function appendAttributionParams(params: URLSearchParams, config: AuthConfig): void {
   if (config.affiliateToken) {
     const tokenParam = config.affiliateTokenParam ?? 't';
     params.set(tokenParam, config.affiliateToken);
@@ -52,7 +51,19 @@ export async function buildAuthorizationUrl(config: AuthConfig): Promise<string>
   if (config.utmSource)   params.set('utm_source', config.utmSource);
   if (config.utmMedium)   params.set('utm_medium', config.utmMedium);
   if (config.utmCampaign) params.set('utm_campaign', config.utmCampaign);
+  if (config.lang)        params.set('lang', config.lang.toUpperCase());
+}
 
+/**
+ * Build the OAuth 2.0 login authorization URL with PKCE parameters.
+ * Includes optional partner attribution params (affiliate token, utm_*) when
+ * present in config — so attribution carries through if the user clicks Login
+ * then signs up from Deriv's home page — plus `lang` when provided.
+ * Stores CSRF token and code verifier in sessionStorage.
+ */
+export async function buildAuthorizationUrl(config: AuthConfig): Promise<string> {
+  const params = await buildPkceParams(config);
+  appendAttributionParams(params, config);
   return `${getAuthBaseUrl()}/auth?${params.toString()}`;
 }
 
@@ -60,22 +71,13 @@ export async function buildAuthorizationUrl(config: AuthConfig): Promise<string>
  * Build the OAuth 2.0 sign-up authorization URL.
  * Includes prompt=registration (required to show the Deriv registration form)
  * and optional partner attribution params forwarded using the exact parameter
- * name from the referral link (t, affiliate_token, sidi, or ca).
+ * name from the referral link (t, affiliate_token, sidi, or ca), plus `lang`.
  * Stores CSRF token and code verifier in sessionStorage.
  */
 export async function buildSignUpUrl(config: AuthConfig): Promise<string> {
   const params = await buildPkceParams(config);
-
   params.set('prompt', 'registration');
-
-  if (config.affiliateToken) {
-    const tokenParam = config.affiliateTokenParam ?? 't';
-    params.set(tokenParam, config.affiliateToken);
-  }
-  if (config.utmSource)   params.set('utm_source', config.utmSource);
-  if (config.utmMedium)   params.set('utm_medium', config.utmMedium);
-  if (config.utmCampaign) params.set('utm_campaign', config.utmCampaign);
-
+  appendAttributionParams(params, config);
   return `${getAuthBaseUrl()}/auth?${params.toString()}`;
 }
 

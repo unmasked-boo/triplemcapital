@@ -5,7 +5,9 @@ import brandConfig from '@/../brand.config.json';
 import { useApiBase } from '@/hooks/useApiBase';
 import useModalManager from '@/hooks/useModalManager';
 import { getActiveTabUrl } from '@/utils/getActiveTabUrl';
-import { FILTERED_LANGUAGES } from '@/utils/languages';
+// [AI]
+import { OFFERED_LANGUAGES } from '@/utils/offered-languages';
+// [/AI]
 import { useTranslations } from '@deriv-com/translations';
 import { DesktopLanguagesModal } from '@deriv-com/ui';
 import ChangeTheme from './ChangeTheme';
@@ -55,7 +57,9 @@ const Footer = () => {
                 <DesktopLanguagesModal
                     headerTitle={localize('Select Language')}
                     isModalOpen
-                    languages={FILTERED_LANGUAGES}
+                    /* [AI] */
+                    languages={OFFERED_LANGUAGES}
+                    /* [/AI] */
                     onClose={hideModal}
                     onLanguageSwitch={code => {
                         try {

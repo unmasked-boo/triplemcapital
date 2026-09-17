@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { FILTERED_LANGUAGES } from '@/utils/languages';
+// [AI]
+import { isOfferedLanguage } from '@/utils/offered-languages';
+// [/AI]
 import { useTranslations } from '@deriv-com/translations';
 
 /**
@@ -8,7 +10,7 @@ import { useTranslations } from '@deriv-com/translations';
  * This hook:
  * 1. Reads 'lang' parameter from URL
  * 2. Falls back to localStorage if no URL parameter
- * 3. Validates against supported languages
+ * 3. Validates against the languages this build bundles a catalog for
  * 4. Switches to the language and removes the parameter from URL
  * 5. Defaults to 'EN' for unsupported languages
  *
@@ -46,11 +48,12 @@ export const useLanguageFromURL = () => {
             // Convert to uppercase to match our language codes
             const langCodeCandidate = langParam.toUpperCase();
 
-            // Use FILTERED_LANGUAGES to check supported languages
-            const supportedLangCodes = FILTERED_LANGUAGES.map(lang => lang.code);
+            // [AI]
+            const isSupportedLang = isOfferedLanguage(langCodeCandidate);
+            // [/AI]
 
             // Redirect any unsupported language to EN (English)
-            if (!supportedLangCodes.includes(langCodeCandidate)) {
+            if (!isSupportedLang) {
                 try {
                     switchLanguage('EN');
                     // Remove lang parameter after processing to avoid URL pollution
@@ -64,9 +67,8 @@ export const useLanguageFromURL = () => {
             }
 
             // If language is supported, switch to it
-            const langCode = langCodeCandidate as (typeof FILTERED_LANGUAGES)[number]['code'];
             try {
-                switchLanguage(langCode);
+                switchLanguage(langCodeCandidate);
                 // Remove lang parameter after processing to avoid URL pollution
                 const url = new URL(window.location.href);
                 url.searchParams.delete('lang');

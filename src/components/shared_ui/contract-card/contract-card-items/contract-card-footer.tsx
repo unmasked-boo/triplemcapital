@@ -38,6 +38,7 @@ const CardFooter = ({
     should_show_transition,
 }: TCardFooterPropTypes) => {
     const { in_prop } = useNewRowTransition(!!should_show_transition);
+    const nodeRef = React.useRef(null);
 
     const is_valid_to_cancel = isValidToCancel(contract_info);
 
@@ -45,6 +46,58 @@ const CardFooter = ({
     const should_show_sell_note = is_lookbacks && isValidToSell(contract_info) && should_show_sell;
 
     if (!should_show_sell) return null;
+
+    const footer_content = (
+        <div className='dc-contract-card-item__footer' ref={nodeRef}>
+            {is_multiplier ? (
+                <div
+                    className={classNames('dc-contract-card__sell-button', {
+                        'dc-contract-card__sell-button--has-cancel-btn': is_valid_to_cancel,
+                        'dc-contract-card__sell-button--positions': is_positions,
+                    })}
+                >
+                    <MultiplierCloseActions
+                        className='dc-btn--sell'
+                        contract_info={contract_info}
+                        getCardLabels={getCardLabels}
+                        is_sell_requested={is_sell_requested}
+                        onClickCancel={onClickCancel}
+                        onClickSell={onClickSell}
+                        server_time={server_time}
+                    />
+                </div>
+            ) : (
+                <React.Fragment>
+                    <div
+                        className={classNames('dc-contract-card__sell-button', {
+                            'dc-contract-card__sell-button--positions': is_positions,
+                        })}
+                    >
+                        <ContractCardSell
+                            contract_info={contract_info}
+                            is_sell_requested={is_sell_requested}
+                            getCardLabels={getCardLabels}
+                            onClickSell={onClickSell}
+                        />
+                    </div>
+                    {should_show_sell_note && (
+                        <Text
+                            as='div'
+                            size='xxxs'
+                            color='less-prominent'
+                            lineHeight='s'
+                            className='lookbacks--note'
+                        >
+                            <Localize
+                                i18n_default_text='<0>Note:</0> Contract will be sold at the prevailing market price when the request is received by our servers. This price may differ from the indicated price.'
+                                components={[<strong key={0} />]}
+                            />
+                        </Text>
+                    )}
+                </React.Fragment>
+            )}
+        </div>
+    );
 
     return (
         <CSSTransition
@@ -61,56 +114,9 @@ const CardFooter = ({
             }
             onEntered={onFooterEntered}
             unmountOnExit
+            nodeRef={nodeRef}
         >
-            <div className='dc-contract-card-item__footer'>
-                {is_multiplier ? (
-                    <div
-                        className={classNames('dc-contract-card__sell-button', {
-                            'dc-contract-card__sell-button--has-cancel-btn': is_valid_to_cancel,
-                            'dc-contract-card__sell-button--positions': is_positions,
-                        })}
-                    >
-                        <MultiplierCloseActions
-                            className='dc-btn--sell'
-                            contract_info={contract_info}
-                            getCardLabels={getCardLabels}
-                            is_sell_requested={is_sell_requested}
-                            onClickCancel={onClickCancel}
-                            onClickSell={onClickSell}
-                            server_time={server_time}
-                        />
-                    </div>
-                ) : (
-                    <React.Fragment>
-                        <div
-                            className={classNames('dc-contract-card__sell-button', {
-                                'dc-contract-card__sell-button--positions': is_positions,
-                            })}
-                        >
-                            <ContractCardSell
-                                contract_info={contract_info}
-                                is_sell_requested={is_sell_requested}
-                                getCardLabels={getCardLabels}
-                                onClickSell={onClickSell}
-                            />
-                        </div>
-                        {should_show_sell_note && (
-                            <Text
-                                as='div'
-                                size='xxxs'
-                                color='less-prominent'
-                                lineHeight='s'
-                                className='lookbacks--note'
-                            >
-                                <Localize
-                                    i18n_default_text='<0>Note:</0> Contract will be sold at the prevailing market price when the request is received by our servers. This price may differ from the indicated price.'
-                                    components={[<strong key={0} />]}
-                                />
-                            </Text>
-                        )}
-                    </React.Fragment>
-                )}
-            </div>
+            {footer_content}
         </CSSTransition>
     );
 };

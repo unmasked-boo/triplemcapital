@@ -95,6 +95,7 @@ const ContractCardHeader = ({
     const displayed_trade_param =
         contract_type_list_info.find(contract_type_item_info => contract_type_item_info.is_param_displayed)
             ?.displayed_param || '';
+    const nodeRef = React.useRef(null);
 
     return (
         <React.Fragment>
@@ -150,8 +151,9 @@ const ContractCardHeader = ({
                                 exit: 'dc-contract-card__sell-button--exit',
                             }}
                             unmountOnExit
+                            nodeRef={nodeRef}
                         >
-                            <div className='dc-contract-card__sell-button-mobile'>
+                            <div ref={nodeRef} className='dc-contract-card__sell-button-mobile'>
                                 <Button
                                     id={`dc_contract_card_${id}_button`}
                                     className={classNames('dc-btn--sell', {

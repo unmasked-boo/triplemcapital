@@ -163,7 +163,7 @@ window.Blockly.JavaScript.javascriptGenerator.forBlock.trade_definition = block 
     const { client } = DBotStore.instance;
 
     if (!client || !client.is_logged_in) {
-        throw new Error('Please login');
+        throw new Error(localize('Please log in'));
     }
 
     const { loginid } = client;

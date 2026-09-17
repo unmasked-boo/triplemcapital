@@ -59,7 +59,7 @@ const DataList = React.memo(
         const [is_scrolling, setIsScrolling] = React.useState(false);
         const [scroll_top, setScrollTop] = React.useState(0);
 
-        const cache = React.useRef<CellMeasurerCache>();
+        const cache = React.useRef<CellMeasurerCache>(undefined);
         const list_ref = React.useRef<MeasuredCellParent | null>(null);
         const items_transition_map_ref = React.useRef<{ [key: string]: boolean }>({});
         const data_source_ref = React.useRef<TRow[] | null>(null);

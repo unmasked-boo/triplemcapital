@@ -58,7 +58,7 @@ const Dialog = ({
         has_close_icon,
     } = other_props;
 
-    const wrapper_ref = React.useRef() as React.MutableRefObject<HTMLInputElement>;
+    const wrapper_ref = React.useRef<HTMLInputElement>(null!);
 
     React.useEffect(() => {
         if (is_visible && !!disableApp) {
@@ -113,9 +113,11 @@ const Dialog = ({
         'dc-dialog__content--centered': is_content_centered,
     });
 
+    const nodeRef = React.useRef(null);
     const is_text =
         typeof children === 'string' ||
-        (React.isValidElement(children) && typeof children?.props?.i18n_default_text === 'string');
+        (React.isValidElement(children) &&
+            typeof (children.props as { i18n_default_text?: unknown })?.i18n_default_text === 'string');
     const dialog = (
         <CSSTransition
             appear
@@ -128,8 +130,10 @@ const Dialog = ({
                 exit: 'dc-dialog__wrapper--exit',
             }}
             unmountOnExit
+            nodeRef={nodeRef}
         >
             <div
+                ref={nodeRef}
                 className={classNames('dc-dialog__wrapper', className, {
                     'dc-dialog__wrapper--has-portal': !!portal_element_id,
                 })}

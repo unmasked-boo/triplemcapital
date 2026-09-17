@@ -34,16 +34,19 @@ describe('applyPrimaryColorFromConfig', () => {
 describe('applyFaviconFromLogo', () => {
     const RealImage = global.Image;
     let imageProbeCount = 0;
+    let probedSrcs: string[] = [];
 
     beforeEach(() => {
         imageProbeCount = 0;
-        // Minimal Image stub that counts probe attempts (each candidate sets `src`).
+        probedSrcs = [];
+        // Minimal Image stub that records probe attempts (each candidate sets `src`).
         // @ts-expect-error - partial stub is enough for the probing path under test.
         global.Image = class {
             onload: (() => void) | null = null;
             onerror: (() => void) | null = null;
-            set src(_value: string) {
+            set src(value: string) {
                 imageProbeCount += 1;
+                probedSrcs.push(value);
             }
         };
     });
@@ -61,6 +64,41 @@ describe('applyFaviconFromLogo', () => {
             applyFaviconFromLogo();
 
             expect(imageProbeCount).toBeGreaterThan(0);
+        });
+    });
+
+    it('sets the letter badge without probing when brand.config.json records no logo (logo_path: null)', () => {
+        jest.isolateModules(() => {
+            jest.doMock('../is-preview-mode', () => ({ isPreviewMode: () => false }));
+            jest.doMock('../../../brand.config.json', () => ({
+                platform: { name: 'Quokka', logo_path: null },
+                colors: { primary: '#abcdef' },
+            }));
+            const { applyFaviconFromLogo } = require('../document-branding');
+
+            applyFaviconFromLogo();
+
+            // The BFF said no logo ships — no candidate may be requested (no 404 noise)…
+            expect(imageProbeCount).toBe(0);
+            // …and the letter badge takes over directly.
+            const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+            expect(link?.href).toMatch(/^data:image\/svg\+xml;base64,/);
+        });
+    });
+
+    it('probes only the exact logo_path the BFF recorded', () => {
+        jest.isolateModules(() => {
+            jest.doMock('../is-preview-mode', () => ({ isPreviewMode: () => false }));
+            jest.doMock('../../../brand.config.json', () => ({
+                platform: { name: 'Quokka', logo_path: '/logo.webp' },
+                colors: { primary: '#abcdef' },
+            }));
+            const { applyFaviconFromLogo } = require('../document-branding');
+
+            applyFaviconFromLogo();
+
+            // The BFF knows the real extension — no guessing across candidates.
+            expect(probedSrcs).toEqual(['/logo.webp']);
         });
     });
 

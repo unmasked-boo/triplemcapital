@@ -80,6 +80,9 @@
     },
     "platform": {
         "name": "kisiagi",
+        "i18n": {
+            "default_language": "EN"
+        },
         "footer": {
             "enable_language_settings": false,
             "enable_theme_toggle": true
@@ -105,6 +108,8 @@
                 "options": "options/",
                 "derivatives": "derivatives/"
             }
-        }
+        },
+        "show_name": true,
+        "logo_path": "/logo.png"
     }
 }
